@@ -1,11 +1,18 @@
 const express = require('express');
 const XLSX = require('xlsx');
+const fs = require('fs');
 const app = express();
 
+
 // 1. Gerência o XLSX
-const workbook = XLSX.readFile('creepypastas.xlsx');
-const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-const creepypastas = XLSX.utils.sheet_to_json(worksheet);
+if (!fs.existsSync('creepypastas.json')) {
+    const workbook = XLSX.readFile('creepypastas.xlsx');
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(worksheet);
+    fs.writeFileSync('creepypastas.json', JSON.stringify(data));
+  }
+
+const creepypastas = require('./creepypastas.json');
 const extractWords = (text) => (text || '').toLowerCase().match(/\b\w+\b/g) || [];
 const countOccurrences = (array) => array.reduce((acc, item) => (acc[item] = (acc[item] || 0) + 1, acc), {});
 const getTopN = (obj, n) => Object.entries(obj).sort((a, b) => b[1] - a[1]).slice(0, n);
